@@ -64,4 +64,78 @@ confusion_matrix_test
 test_misclass_error <- missclass(test$X0.26, test_pred)
 print(test_misclass_error)
 
+#### TASK 1.3 ####
+  # Get probabilities of each class for each case in the training data
+train_probs <- model_train$prob
+  # Filter cases where the true label is "8"
+eight_indices <- which(train$X0.26 == 8)
 
+  # Get the probabilities for the correct class (8) for each case
+eight_probs <- train_probs[eight_indices, "8"]
+
+# Sort by probability: highest for easiest, lowest for hardest
+sorted_indices <- order(eight_probs, decreasing = TRUE)
+easiest_indices <- eight_indices[sorted_indices[1:2]]   # Two highest probabilities
+hardest_indices <- eight_indices[sorted_indices[(length(sorted_indices)-2):length(sorted_indices)]]  # Three lowest probabilities
+
+# Function to visualize an 8x8 matrix of a digit
+visualize_digit <- function(data_row, label) {
+  # Reshape to 8x8 matrix
+  digit_matrix <- matrix(as.numeric(data_row), nrow = 8, ncol = 8, byrow = TRUE)
+  # Plot heatmap
+  heatmap(digit_matrix, Rowv = NA, Colv = NA, scale = "none", col = heat.colors(256),
+          main = paste("Digit", label))
+}
+
+# Visualize easiest cases for digit "8"
+for (i in easiest_indices) {
+  visualize_digit(train[i, -ncol(train)], train$X0.26[i])  # Exclude label column for visualization
+}
+
+# Visualize hardest cases for digit "8"
+for (i in hardest_indices) {
+  visualize_digit(train[i, -ncol(train)], train$X0.26[i])  # Exclude label column for visualization
+}
+
+
+#### TASK 1.4 ####
+
+Kvalues <- 1:30
+train_errors <- numeric(length(Kvalues)) #creates a emty set of vectors
+valid_errors <- numeric(length(Kvalues)) #creates a emty set of vectors
+
+for (k in Kvalues) {
+  # Fit KNN model on training data and predict on training data
+  model_train <- kknn(as.factor(X0.26) ~ ., train = train, test = train, k = k, kernel = "rectangular")
+  train_pred <- fitted(model_train)
+  train_errors[k] <- missclass(train$X0.26, train_pred)  # Store training error
+  
+  # Fit KNN model on training data and predict on validation data
+  model_valid <- kknn(as.factor(X0.26) ~ ., train = train, test = valid, k = k, kernel = "rectangular")
+  valid_pred <- fitted(model_valid)
+  valid_errors[k] <- missclass(valid$X0.26, valid_pred)  # Store validation error
+}
+
+# Set up plot for training errors with improved readability
+plot(Kvalues, train_errors, type = "o", col = "blue", pch = 16, lwd = 2, cex = 1.5, 
+     xlab = "K Value", ylab = "Misclassification Error", 
+     main = "Training and Validation Errors vs. K", 
+     ylim = range(c(train_errors, valid_errors)), cex.lab = 1.5, cex.main = 1.5)
+
+# Add validation errors with a thicker line and larger points
+lines(Kvalues, valid_errors, type = "o", col = "red", pch = 16, lwd = 2, cex = 1.5)
+
+# Add grid lines for readability
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray")
+
+# Add a legend with larger font size
+legend("bottomright", legend = c("Training Error", "Validation Error"), 
+       col = c("blue", "red"), pch = 16, lty = 1, lwd = 2, cex = 1.2)
+
+# Add a vertical line at the optimal K value
+optimal_k <- which.min(valid_errors)
+abline(v = Kvalues[optimal_k], col = "green", lty = 2, lwd = 2)
+text(Kvalues[optimal_k], valid_errors[optimal_k] + 0.002, labels = paste("Optimal K =", Kvalues[optimal_k]), col = "black", pos = 4)
+
+  
+  
