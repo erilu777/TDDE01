@@ -137,5 +137,57 @@ optimal_k <- which.min(valid_errors)
 abline(v = Kvalues[optimal_k], col = "green", lty = 2, lwd = 2)
 text(Kvalues[optimal_k], valid_errors[optimal_k] + 0.002, labels = paste("Optimal K =", Kvalues[optimal_k]), col = "black", pos = 4)
 
+#### TASK 1.5 ####
+
+# Define the cross-entropy error function
+CE <- function(truth, probability_matrix) {
+  epsilon <- 1e-15  # Small constant to avoid log(0)
+  cross_entropy <- 0
   
+  # Loop over each sample
+  for (i in 1:length(truth)) {
+    # Get the true class for the i-th sample
+    true_class <- as.integer(truth[i])+1
+    
+    # Compute cross-entropy for this sample
+    cross_entropy <- cross_entropy - log(probability_matrix[i, true_class] + epsilon)
+  }
+  
+  # Return the average cross-entropy error
+  return(cross_entropy / length(truth))
+}
+
+# Define the range of K values
+Kvalues <- 1:30
+cross_entropy_errors <- numeric(length(Kvalues))# Create an empty vector for cross-entropy errors
+epsilon <- 1e-15  # Small constant to avoid log(0)
+
+# Loop over each K value
+for (k in Kvalues) {
+  # Fit KNN model on training data and predict on validation data
+  model_valid <- kknn(as.factor(X0.26) ~ ., train = train, test = valid, k = k, kernel = "rectangular")
+  
+  # Extract predicted probabilities for each class
+  probs <- model_valid$prob
+  cat("Dimensions of probs:", dim(probs), "\n")
+  print(colnames(valid))
+  valid_labels <- valid$`X0.26`
+  cat("Length of valid_labels:", length(valid_labels), "\n")
+  
+  
+  # Calculate cross-entropy error for the validation set and store it
+  cross_entropy_errors[k] <- CE(valid_labels, probs)
+}
+
+# Plot Cross-Entropy Error vs. K
+plot(Kvalues, cross_entropy_errors, type = "o", col = "blue", pch = 16,
+     xlab = "K Value", ylab = "Cross-Entropy Error", main = "Cross-Entropy Error vs. K")
+
+# Identify and mark the optimal K (minimum cross-entropy)
+optimal_k <- which.min(cross_entropy_errors)
+abline(v = Kvalues[optimal_k], col = "green", lty = 2, lwd = 2)
+points(Kvalues[optimal_k], cross_entropy_errors[optimal_k], col = "red", pch = 19)
+text(Kvalues[optimal_k], cross_entropy_errors[optimal_k], labels = paste("Optimal K =", Kvalues[optimal_k]), pos = 3)
+
+
   
