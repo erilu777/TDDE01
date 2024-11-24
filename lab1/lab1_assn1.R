@@ -73,23 +73,23 @@ sorted_indices <- order(eight_probs, decreasing = TRUE)
 easiest_indices <- eight_indices[sorted_indices[1:2]]   # Two highest probabilities
 hardest_indices <- eight_indices[sorted_indices[(length(sorted_indices)-2):length(sorted_indices)]]  # Three lowest probabilities
 
-# Function to visualize an 8x8 matrix of a digit
-visualize_digit <- function(data_row, label) {
+# Function to visualize an 8x8 matrix of a digit with index
+visualize_digit <- function(data_row, label, index) {
   # Reshape to 8x8 matrix
   digit_matrix <- matrix(as.numeric(data_row), nrow = 8, ncol = 8, byrow = TRUE)
   # Plot heatmap
   heatmap(digit_matrix, Rowv = NA, Colv = NA, scale = "none", col = heat.colors(256),
-          main = paste("Digit", label))
+          main = paste("Digit", label, "- Index", index))
 }
 
-# Visualize easiest cases for digit "8"
+# Visualize easiest cases for digit "8" with indices
 for (i in easiest_indices) {
-  visualize_digit(train[i, -ncol(train)], train$X0.26[i])  # Exclude label column for visualization
+  visualize_digit(train[i, -ncol(train)], train$X0.26[i], i)  # Include index
 }
 
-# Visualize hardest cases for digit "8"
+# Visualize hardest cases for digit "8" with indices
 for (i in hardest_indices) {
-  visualize_digit(train[i, -ncol(train)], train$X0.26[i])  # Exclude label column for visualization
+  visualize_digit(train[i, -ncol(train)], train$X0.26[i], i)  # Include index
 }
 
 
@@ -131,6 +131,13 @@ legend("bottomright", legend = c("Training Error", "Validation Error"),
 optimal_k <- which.min(valid_errors)
 abline(v = Kvalues[optimal_k], col = "green", lty = 2, lwd = 2)
 text(Kvalues[optimal_k], valid_errors[optimal_k] + 0.002, labels = paste("Optimal K =", Kvalues[optimal_k]), col = "black", pos = 4)
+
+#Estimate the test error for k=optimal_k
+model_test <- kknn(as.factor(X0.26) ~ ., train = train, test = test, k = 8, kernel = "rectangular")
+test_pred <- fitted(model_test)
+test_misclass_error <- missclass(test$X0.26, test_pred)
+print(test_misclass_error)
+
 
 #### TASK 1.5 ####
 
