@@ -132,4 +132,38 @@ ggplot(data, aes(x = Age, y = PlasmaGlucoseConcentration, color = factor(Predict
 
 
 #### Assignment 1.5 ####
+# Basis function expansion to introduce polynomial interaction terms into the logistic regression model
+# x1 = PlasmaGlucoseConcentration, x2 = Age
+
+# Compute new features for basis expansion and add these to the dataset as new columns
+data$z1 <- data$PlasmaGlucoseConcentration^4
+data$z2 <- data$PlasmaGlucoseConcentration^3 * data$Age
+data$z3 <- data$PlasmaGlucoseConcentration^2 * data$Age^2
+data$z4 <- data$PlasmaGlucoseConcentration * data$Age^3
+data$z5 <- data$Age^4
+
+# Train the new logistic regression model using expanded new features z1...z5
+logistic_model_expanded <- glm(Diabetes ~ PlasmaGlucoseConcentration + Age + z1 + z2 + z3 + z4 + z5, 
+                               data = data, 
+                               family = binomial)
+
+# Extract predicted values and classify them to 0 or 1 with r = 0.5
+data$Predicted_Probabilities_Expanded <- predict(logistic_model_expanded, type = "response") # Values between 0 and 1
+data$Predicted_Classifications_Expanded <- ifelse(data$Predicted_Probabilities_Expanded > 0.5, 1, 0) # Values either 0 or 1
+
+# Training misclassification error
+error_expanded <- mean(data$Predicted_Classifications_Expanded != data$Diabetes)
+cat(sprintf("\nTraining Misclassification Error (Expanded Model): %.2f%%\n", error_expanded * 100)) # Print the result
+
+# Scatterplot of predicted Diabetes with new model
+ggplot(data, aes(x = Age, y = PlasmaGlucoseConcentration, color = factor(Predicted_Classifications_Expanded))) + # Define x/y-axes
+  geom_point(alpha = 0.6) +  # Add points with 40% transparency
+   labs( # Labels for the plot
+    title = "Plasma Glucose Concentration vs Age (Basis Function Expansion)",
+    x = "Age",
+    y = "Plasma Glucose Concentration",
+    color = "Predicted Diabetes"
+  ) +
+  theme_minimal() +  # Clean theme
+  scale_color_manual(values = c("green", "red"), labels = c("No", "Yes")) # Customize color/label for Diabetes
 
