@@ -1,11 +1,6 @@
 #### INSTALL NECESSARY PACKAGES ####
 install.packages("kknn")
-install.packages("ggplot2")
-install.packages("knitr")
 library(kknn)
-library(ggplot2)
-library(knitr)
-
 
 #### DIVIDE THE DATA ####
 
@@ -101,8 +96,8 @@ for (i in hardest_indices) {
 #### TASK 1.4 ####
 
 Kvalues <- 1:30
-train_errors <- numeric(length(Kvalues)) #creates a emty set of vectors
-valid_errors <- numeric(length(Kvalues)) #creates a emty set of vectors
+train_errors <- numeric(length(Kvalues)) #creates a empty set of vectors
+valid_errors <- numeric(length(Kvalues)) #creates a empty set of vectors
 
 for (k in Kvalues) {
   # Fit KNN model on training data and predict on training data
@@ -169,10 +164,8 @@ for (k in Kvalues) {
   
   # Extract predicted probabilities for each class
   probs <- model_valid$prob
-  cat("Dimensions of probs:", dim(probs), "\n")
-  print(colnames(valid))
   valid_labels <- valid$`X0.26`
-  cat("Length of valid_labels:", length(valid_labels), "\n")
+  
   
   
   # Calculate cross-entropy error for the validation set and store it
