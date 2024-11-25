@@ -7,7 +7,7 @@ library(caret)
 ### TASK 1 ###
 
 # read the data
-data <- read.csv("parkinsons.csv")
+data <- read.csv("../Data/parkinsons.csv")
 
 # Get the number of rows in the dataset
 n <- dim(data)[1]
