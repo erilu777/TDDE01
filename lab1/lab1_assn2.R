@@ -31,7 +31,7 @@ trainScaled <- predict(scaler, train)  # applies scaling to training data
 testScaled <- predict(scaler, test)
 
 
-### TASK 2 ###
+### TASK 2, Linear Regression Model ###
 
 # Fit linear regression model using scaled training data
 # motor_UPDRS is the target variable, use all other columns as predictors
@@ -98,7 +98,7 @@ ridgeOpt <- function(lambda, traindata) {
   
   # Function that optim will minimize
   # Takes parameters and returns ridge value
-  objective <- function(params) {
+  ridge_value <- function(params) {
     theta <- params[1:n_params]  # first n_params values are theta
     sigma <- params[n_params + 1]  # last value is sigma
     return(ridge(theta, sigma, lambda, traindata))
@@ -109,7 +109,7 @@ ridgeOpt <- function(lambda, traindata) {
   
   # Run optimization
   result <- optim(par = start_values,       # starting values
-                  fn = objective,           # function to minimize
+                  fn = ridge_value,           # function to minimize
                   method = "BFGS")          # optimization method
   
   # Return optimized parameters
@@ -175,17 +175,44 @@ mse_test100 <- calculate_mse(result100[1:22], result100[23], testScaled)
 mse_train1000 <- calculate_mse(result1000[1:22], result1000[23], trainScaled)
 mse_test1000 <- calculate_mse(result1000[1:22], result1000[23], testScaled)
 
-# Print the MSE results, including normal log likelihood
-print(paste("Lambda = 0 (without ridge function):    Train MSE:", round(mse_train, 4), "Test MSE:", round(mse_test, 4)))
-print(paste("Lambda = 1:    Train MSE:", round(mse_train1, 4), "Test MSE:", round(mse_test1, 4)))
-print(paste("Lambda = 100:  Train MSE:", round(mse_train100, 4), "Test MSE:", round(mse_test100, 4)))
-print(paste("Lambda = 1000: Train MSE:", round(mse_train1000, 4), "Test MSE:", round(mse_test1000, 4)))
-
-# Higher lambda -> Higher MSE -> Predictions get worse with increasing lambda
-# This suggests that original model wasn't overfitting, no need for regularization
-
 # Calcaulate degrees of freedom (DF) for each lambda
 df1 <- DF(1, trainScaled)
 df100 <- DF(100, trainScaled)
 df1000 <- DF(1000, trainScaled)
+
+# Calculate degrees of freedom (DF) for each lambda
+df1 <- DF(1, trainScaled)
+df100 <- DF(100, trainScaled)
+df1000 <- DF(1000, trainScaled)
+
+# Print the MSE results and degrees of freedom
+print(paste("Lambda = 0 (without ridge function):    Train MSE:", round(mse_train, 4), 
+            "Test MSE:", round(mse_test, 4), 
+            "DF: 21"))  # Full df for linear regression = number of predictors
+print(paste("Lambda = 1:    Train MSE:", round(mse_train1, 4), 
+            "Test MSE:", round(mse_test1, 4),
+            "DF:", round(df1, 4)))
+print(paste("Lambda = 100:  Train MSE:", round(mse_train100, 4), 
+            "Test MSE:", round(mse_test100, 4),
+            "DF:", round(df100, 4)))
+print(paste("Lambda = 1000: Train MSE:", round(mse_train1000, 4), 
+            "Test MSE:", round(mse_test1000, 4),
+            "DF:", round(df1000, 4)))
+
+
+# Higher lambda -> Higher MSE -> Predictions get worse with increasing lambda
+# This suggests that original model wasn't overfitting, no need for regularization
+
+# Data frame of coefficients for comparison
+coef_comparison <- data.frame(
+  Variable = colnames(trainScaled)[-which(names(trainScaled) == "motor_UPDRS")],
+  Lambda0 = fit$coefficients[-1],  # Linear regression coefficients (excluding intercept)
+  Lambda1 = result1[2:22],         # Ridge coefficients for λ=1
+  Lambda100 = result100[2:22],     # Ridge coefficients for λ=100
+  Lambda1000 = result1000[2:22]    # Ridge coefficients for λ=1000
+)
+
+# Print to look at the coefficients
+print("Coefficient comparison:")
+print(coef_comparison)
 
