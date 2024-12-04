@@ -170,7 +170,8 @@ accuracy # 0.8910351
 
 # Precision, Recall, and F1 Score
 precision <- TP / (TP + FP) # 0.6666667
-recall <- TP / (TP + FN) # = True Positive Rates = sensitivity = recall = 
+recall <- TP / (TP + FN) # = True Positive Rates = sensitivity = recall = 0.1350157
+F1 <- (2 )
 
 # Accuracy does not take imbalanced classes into account, but F1 score does
 # Imbalanced classes meaning very large number of 1 and very small number of 0
