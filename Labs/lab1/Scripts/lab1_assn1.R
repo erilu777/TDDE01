@@ -5,7 +5,7 @@ library(kknn)
 #### DIVIDE THE DATA ####
 
 # Load the data into a variable
-data <- read.csv("optdigits.csv") 
+data <- read.csv("optdigits.csv", header=F) 
 
 # Get the number of rows in the dataset
 n <- dim(data)[1]
@@ -33,9 +33,9 @@ test <- data[id3, ]
 # Fitting = Learning = Training...?
 
 # Fit the model on training data and test on training data
-model_train <- kknn(as.factor(X0.26) ~ ., train = train, test = train, k = 30, kernel = "rectangular")
+model_train <- kknn(as.factor(V65) ~ ., train = train, test = train, k = 30, kernel = "rectangular")
 train_pred <- fitted(model_train)
-confusion_matrix_train <- table(Truth = train$X0.26, Predicted = train_pred)
+confusion_matrix_train <- table(Truth = train$V65, Predicted = train_pred)
 confusion_matrix_train
 
 # Define the misclassification error function
@@ -45,25 +45,24 @@ missclass <- function(truth, predicted) {
 }
 
 # Misclassification errors for the training data
-train_misclass_error <- missclass(train$X0.26, train_pred)
-print(train_misclass_error)
-
+train_misclass_error <- missclass(train$V65, train_pred)
+print(train_misclass_error) #0.04500262
 
 # Fit the model on training data and test on test data
-model_test <- kknn(as.factor(X0.26) ~ ., train = train, test = test, k = 30, kernel = "rectangular")
+model_test <- kknn(as.factor(V65) ~ ., train = train, test = test, k = 30, kernel = "rectangular")
 test_pred <- fitted(model_test)
-confusion_matrix_test <- table(Truth = test$X0.26, Predicted = test_pred)
+confusion_matrix_test <- table(Truth = test$V65, Predicted = test_pred)
 confusion_matrix_test
 
 # Misclassification errors for the training data
-test_misclass_error <- missclass(test$X0.26, test_pred)
-print(test_misclass_error)
+test_misclass_error <- missclass(test$V65, test_pred)
+print(test_misclass_error) #0.05329154
 
 #### TASK 1.3 ####
   # Get probabilities of each class for each case in the training data
 train_probs <- model_train$prob
   # Filter cases where the true label is "8"
-eight_indices <- which(train$X0.26 == 8)
+eight_indices <- which(train$V65 == 8)
 
   # Get the probabilities for the correct class (8) for each case
 eight_probs <- train_probs[eight_indices, "8"]
@@ -84,12 +83,12 @@ visualize_digit <- function(data_row, label, index) {
 
 # Visualize easiest cases for digit "8" with indices
 for (i in easiest_indices) {
-  visualize_digit(train[i, -ncol(train)], train$X0.26[i], i)  # Include index
+  visualize_digit(train[i, -ncol(train)], train$XV65[i], i)  # Include index
 }
 
 # Visualize hardest cases for digit "8" with indices
 for (i in hardest_indices) {
-  visualize_digit(train[i, -ncol(train)], train$X0.26[i], i)  # Include index
+  visualize_digit(train[i, -ncol(train)], train$V65[i], i)  # Include index
 }
 
 
@@ -101,14 +100,14 @@ valid_errors <- numeric(length(Kvalues)) #creates a empty set of vectors
 
 for (k in Kvalues) {
   # Fit KNN model on training data and predict on training data
-  model_train <- kknn(as.factor(X0.26) ~ ., train = train, test = train, k = k, kernel = "rectangular")
+  model_train <- kknn(as.factor(V65) ~ ., train = train, test = train, k = k, kernel = "rectangular")
   train_pred <- fitted(model_train)
-  train_errors[k] <- missclass(train$X0.26, train_pred)  # Store training error
+  train_errors[k] <- missclass(train$V65, train_pred)  # Store training error
   
   # Fit KNN model on training data and predict on validation data
-  model_valid <- kknn(as.factor(X0.26) ~ ., train = train, test = valid, k = k, kernel = "rectangular")
+  model_valid <- kknn(as.factor(V65) ~ ., train = train, test = valid, k = k, kernel = "rectangular")
   valid_pred <- fitted(model_valid)
-  valid_errors[k] <- missclass(valid$X0.26, valid_pred)  # Store validation error
+  valid_errors[k] <- missclass(valid$V65, valid_pred)  # Store validation error
 }
 
 # Set up plot for training errors with improved readability
@@ -133,10 +132,10 @@ abline(v = Kvalues[optimal_k], col = "green", lty = 2, lwd = 2)
 text(Kvalues[optimal_k], valid_errors[optimal_k] + 0.002, labels = paste("Optimal K =", Kvalues[optimal_k]), col = "black", pos = 4)
 
 #Estimate the test error for k=optimal_k
-model_test <- kknn(as.factor(X0.26) ~ ., train = train, test = test, k = 8, kernel = "rectangular")
+model_test <- kknn(as.factor(V65) ~ ., train = train, test = test, k = 8, kernel = "rectangular")
 test_pred <- fitted(model_test)
-test_misclass_error <- missclass(test$X0.26, test_pred)
-print(test_misclass_error)
+test_misclass_error <- missclass(test$V65, test_pred)
+print(test_misclass_error) #0.03761755
 
 
 #### TASK 1.5 ####
@@ -167,11 +166,11 @@ epsilon <- 1e-15  # Small constant to avoid log(0)
 # Loop over each K value
 for (k in Kvalues) {
   # Fit KNN model on training data and predict on validation data
-  model_valid <- kknn(as.factor(X0.26) ~ ., train = train, test = valid, k = k, kernel = "rectangular")
+  model_valid <- kknn(as.factor(V65) ~ ., train = train, test = valid, k = k, kernel = "rectangular")
   
   # Extract predicted probabilities for each class
   probs <- model_valid$prob
-  valid_labels <- valid$`X0.26`
+  valid_labels <- valid$V65
   
   
   
