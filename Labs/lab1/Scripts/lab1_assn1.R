@@ -132,10 +132,10 @@ abline(v = Kvalues[optimal_k], col = "green", lty = 2, lwd = 2)
 text(Kvalues[optimal_k], valid_errors[optimal_k] + 0.002, labels = paste("Optimal K =", Kvalues[optimal_k]), col = "black", pos = 4)
 
 #Estimate the test error for k=optimal_k
-model_test <- kknn(as.factor(V65) ~ ., train = train, test = test, k = 8, kernel = "rectangular")
+model_test <- kknn(as.factor(V65) ~ ., train = train, test = test, k = optimal_k, kernel = "rectangular")
 test_pred <- fitted(model_test)
 test_misclass_error <- missclass(test$V65, test_pred)
-print(test_misclass_error) #0.03761755
+print(test_misclass_error) #0.03239289
 
 
 #### TASK 1.5 ####
