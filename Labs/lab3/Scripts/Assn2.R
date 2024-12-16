@@ -15,17 +15,16 @@ st <- merge(stations,temps,by="station_number")
 bandwidth_geo <- 50000 # distance in meters (..?)
 bandwidth_date <- 5 # number of days
 bandwidth_time <- 4 # number of hours
-latitude <- 65.63141 # The point to predict (Oliver's home in Luleå)
-longitude <- 22.02253 #
 
-interest_date <- as.Date("2015-01-15") # Oliver remembers this day as cold as hell)
+# The point to predict
+latitude <- 65.63141 
+longitude <- 22.02253 
+interest_date <- as.Date("2015-01-15") 
 prediction_hours <- c(4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24)
 
+# the vectors that will be filled with predictions
 pred_temperatures_sum <- vector(length=length(prediction_hours))
 pred_temperatures_prod <- vector(length=length(prediction_hours))
-
-
-# Students’ code here
 
 # Ensure the `date` column is in Date format
 st$date <- as.Date(st$date) 
@@ -49,19 +48,17 @@ K_geo <- gaussian_kernel(geo_distances, bandwidth_geo)
 date_distances <- (as.numeric(difftime(interest_date, filtered_data$date, units = "days")))
 K_date <- gaussian_kernel(date_distances, bandwidth_date)
 
-### Gaussian kernel for time and predictions
-
 # Extract hours from the time strings in filtered_data
 filtered_data$hour <- as.numeric(substr(filtered_data$time, 1, 2))
 
- 
 # Calculate predictions for each hour we want to predict
 for(i in 1 : length(prediction_hours)){
   target_hour <- prediction_hours[i] # The hour we're trying to predict
 
   # Calculate time differences
   time_distances <- abs(filtered_data$hour - target_hour)
-  time_distances <- pmin(time_distances, 24 - time_distances)
+  # for example, 23 and 01 should have a 2 hour difference, not 23-1=22
+  time_distances <- pmin(time_distances, 24 - time_distances)  
   
   # Calculate time kernel
   K_time <- gaussian_kernel(time_distances, bandwidth_time)
@@ -77,7 +74,7 @@ for(i in 1 : length(prediction_hours)){
   pred_temperatures_prod[i] <- sum(K_prod_combined * filtered_data$air_temperature) / sum(K_prod_combined)
   
   # Product prediction lower, more "strict" (needs to be close in all directions)
-  cat("Hour", target_hour, "- Sum:", round(pred_temperatures_sum[i], 4), 
+  cat("Time:", target_hour, "- Sum:", round(pred_temperatures_sum[i], 4), 
       "°C, Product:", round(pred_temperatures_prod[i], 4), "°C\n")
 }
 
@@ -111,6 +108,9 @@ plot(time_seq, time_kernel_values, type="l",
      xlab="Time Distance (hours)", ylab="Kernel Value",
      main="Time Kernel")
 
+
+# EXTRA, not part of lab but to see the and compare to actual values
+# close in geographical distance and date:
 # Sort all measurements by distance to our point
 st$distance_to_lulea <- distHaversine(
   cbind(st$longitude, st$latitude), 
@@ -120,7 +120,7 @@ st$distance_to_lulea <- distHaversine(
 # Find stations close to Luleå (within 100km)
 nearby_stations <- subset(st, distHaversine(cbind(longitude, latitude), c(22.02253, 65.63141)) < 100000)
 
-# Look at measurements near our date of interest
+# Look at measurements near our date of interest (within 2 weeks)
 nearby_data <- subset(nearby_stations, 
                       abs(as.numeric(difftime(date, as.Date("2015-01-15"), units="days"))) < 14)
 
