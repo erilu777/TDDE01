@@ -82,6 +82,7 @@ print(nn_logi$weights)
 
 #### Assignment 4.5 ####
 
+
 # Sample points
 set.seed(1234567890)  # Reset seed for reproducibility
 Var <- runif(500, 0, 10)
