@@ -86,7 +86,7 @@ on test data", "sin(var) = - 7.5"),
 
 #### Assignment 4.4 ####
 # Print the weights
-print(nn_logi$generalized.weights)
+print(nn_logi$weights)
 
 nn_logi
 
