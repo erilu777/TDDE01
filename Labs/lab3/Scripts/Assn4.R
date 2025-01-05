@@ -1,4 +1,5 @@
 
+#### Install packages ####
 install.packages("neuralnet")
 library(neuralnet)
 
@@ -6,16 +7,20 @@ library(neuralnet)
 set.seed(1234567890)
 
 #### Assignment 4.1 ####
+
 #Given code from assignment
 Var <- runif(500, 0, 10)
 mydata <- data.frame(Var, Sin=sin(Var))
 tr <- mydata[1:25,] # Training
 te <- mydata[26:500,] # Test
 # Random initialization of the weights in the interval [-1, 1]
-winit <- runif(10,-1,1)
-nn_logi <- neuralnet(Sin ~ Var, tr, hidden = 10, startweights = winit)
+set.seed(1234567890)
+winit <- runif(31,-1,1)
+set.seed(1234567890)
 
+nn_logi <- neuralnet(Sin ~ Var, tr, hidden = 10, startweights = winit, act.fct = "logistic")
 # Plot of the training data (black), test data (blue), and predictions on the test data (red)
+print(nn_logi$weights)
 plot(tr, cex=2, main="Training Data, Test Data, and NN Predictions")
 points(te, col = "blue", cex=1)
 points(te[,1],predict(nn_logi,te), col="red", cex=1)
@@ -25,6 +30,8 @@ legend("bottomleft",
        pch = 1, 
        cex = 0.8)
 
+print(nn_logi$weights)
+nn_logi
 #### Assignment 4.2 ####
 # Neural network with the activation function to be linear f(x) = x
 nn_linear <- neuralnet(Sin ~ Var, tr, hidden = 10, act.fct = function(x) x, startweights = winit)
@@ -55,12 +62,13 @@ legend("bottomleft",
        pch = 1, cex = 0.8)
 
 
-#### Assignment 4.3 ####
 
+#### Assignment 4.3 ####
+set.seed(1234567890)
 Var<- runif(500, 0, 50)
 
 mydata2 <- data.frame(Var, Sin=sin(Var))
-test2 <- mydata2[1:500,]
+test2 <- mydata2
 
 # Set up the plot with x-axis limits between 0 and 50
 plot(tr, cex = 1, xlim = c(0, 50), ylim = c(-12, 1.5), main = "Sine Function Predictions", xlab = "Var", ylab = "Sin(Var)")
@@ -70,15 +78,17 @@ points(test2, col = "blue", cex = 1)
 
 # Add predictions from the neural network in red
 points(test2[, 1], predict(nn_logi, test2), col = "red", cex=1)
-abline(h = -9, col = "green", lwd = 2)
+abline(h = -7.5, col = "green", lwd = 2)
 
 legend("bottomleft", legend = c("Training Data", "Test Data", "NN Predictions 
-on test data", "sin(var) = - 9"), 
+on test data", "sin(var) = - 7.5"), 
        col = c("black", "blue", "red", "green"), pch = c(1, 1, 1), cex = 0.8)
 
 #### Assignment 4.4 ####
 # Print the weights
-print(nn_logi$weights)
+print(nn_logi$generalized.weights)
+
+nn_logi
 
 # Look at the weights
 
@@ -93,7 +103,7 @@ mydata_inverse <- data.frame(Var = Var, Sin = sin(Var))
 
 # Train neural network with flipped relationship
 # Sin ~ Var (from earlier) becomes Var ~ Sin
-nn_inverse <- neuralnet(Var ~ Sin, mydata, hidden = 10, threshold = 0.1)
+nn_inverse <- neuralnet(Var ~ Sin, mydata, startweights = winit, hidden = 10, threshold = 0.1)
 
 # Plot results
 plot(mydata_inverse$Sin, mydata_inverse$Var, 
@@ -110,3 +120,11 @@ legend("bottomleft",
        col = c("blue", "red"),
        pch = 1,
        cex = 0.8)
+
+
+
+
+
+
+
+
