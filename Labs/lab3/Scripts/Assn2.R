@@ -70,7 +70,7 @@ for(i in 1 : length(prediction_hours)){
   K_prod_combined <- K_geo * K_date * K_time
   
   # Calculate weighted average temperatures (both methods)
-  pred_temperatures_sum[i] <- sum(K_sum_combined * filtered_data$air_temperature) / sum(K_sum_combined)
+  pred_temperatures_sum[i] <- sum(K_sum_combined * filtered_data$air_temperature) / sum(K_sum_combined) #add to report
   pred_temperatures_prod[i] <- sum(K_prod_combined * filtered_data$air_temperature) / sum(K_prod_combined)
   
   # Product prediction lower, more "strict" (needs to be close in all directions)

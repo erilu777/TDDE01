@@ -184,34 +184,29 @@ sum(test$y == "no")  # 11979 cases
 # F1 is preferre due to the class imbalance.
 
 
-
-
 #### TASK 2.5 - Decision Tree Classification with Loss Matrix ####
 
 # A loss matrix assign different penalties to various types of misclassifications
 
+# Probabilities for classification on test data (Note: type = "vector")
+pred_test <- as.matrix(predict(optimalTree, newdata = test, type = "vector"))
+pred_test
+
 # Custom Loss Matrix: TP=0, FN=5, FP=1, TN=0
-loss_matrix <- matrix(c(0, 5, 1, 0), nrow = 2, byrow = TRUE,
-                      dimnames = list(Observed = c("yes", "no"),
-                                      Predicted = c("yes", "no")))
+loss_matrix <- pred_test %*% matrix(c(0, 1, 5, 0), nrow = 2, byrow = TRUE)
 
 # Print loss matrix to verify correct setup
 print(loss_matrix)
 
-# Use "rpart" instead of "tree" library in order to use custom loss matrices
-# Fit the tree on train(?) data with loss matrix
-fit_tree_with_loss <- rpart(y ~ ., data = train, method = "class",
-                            parms = list(loss = loss_matrix))
-summary(fit_tree_with_loss)
+# Apply best (min) value on each row
+best_index <- apply(loss_matrix, MARGIN = 1, FUN = which.min)
 
-# Make predictions on the test data
-pred_test_loss <- predict(fit_tree_with_loss, newdata = test, type = "class")
+# Convert y variable to factor based on best index
+pred = levels(test$y)[best_index]
 
-# Confusion matrix based on test data
-confusion_matrix <- table(True = test$y, Predicted = pred_test_loss)
+# New confusion matrix
+confusion_matrix <- table(True = test$y, Predicted = pred)
 print(confusion_matrix)
-
-
 
 
 #### TASK 2.6 - Optimal Tree & Logistic Regression ####
